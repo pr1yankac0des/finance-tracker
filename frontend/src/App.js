@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts'; // Removed Legend to fix build error
 import { CSVLink } from "react-csv";
 import './App.css';
 
@@ -17,10 +17,13 @@ function App() {
     date: new Date().toISOString().split('T')[0] 
   });
 
+  // Your unique Render Backend URL
+  const API_BASE_URL = 'https://finance-backend-ym2h.onrender.com/api';
+
   // Fetch transactions from backend
   const fetchTransactions = async () => {
     try {
-      const res = await axios.get('https://finance-backend-ym2h.onrender.com/');
+      const res = await axios.get(`${API_BASE_URL}/transactions`);
       setTransactions(res.data);
     } catch (err) {
       console.error("Error fetching data:", err);
@@ -34,7 +37,7 @@ function App() {
   // Handle Login and Registration
   const handleAuth = async (e) => {
     e.preventDefault();
-    const url = `http://localhost:5000/api/${isRegistering ? 'register' : 'login'}`;
+    const url = `${API_BASE_URL}/${isRegistering ? 'register' : 'login'}`;
     try {
       const res = await axios.post(url, { email, password });
       if (isRegistering) {
@@ -57,20 +60,22 @@ function App() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/transactions', formData);
+      // Fixed: Added /transactions to the path
+      await axios.post(`${API_BASE_URL}/transactions`, formData);
       setFormData({ ...formData, amount: '' });
-      fetchTransactions();
+      fetchTransactions(); // Refresh list after adding
     } catch (err) {
-      alert("Error adding transaction");
+      alert("Error adding transaction. Is the backend awake?");
     }
   };
 
   const deleteItem = async (id) => {
     try {
-      await axios.post('http://localhost:5000/api/transactions/delete', { id });
+      // Fixed: Added /transactions/delete to the path
+      await axios.post(`${API_BASE_URL}/transactions/delete`, { id });
       fetchTransactions();
     } catch (err) {
-      console.error(err);
+      console.error("Error deleting item:", err);
     }
   };
 
@@ -79,7 +84,6 @@ function App() {
     curr.type === 'income' ? acc + Number(curr.amount) : acc - Number(curr.amount), 0
   );
 
-  // Grouping data for the Pie Chart (Expenses Only)
   const chartData = transactions
     .filter(t => t.type === 'expense')
     .reduce((acc, curr) => {
@@ -92,9 +96,8 @@ function App() {
       return acc;
     }, []);
 
-  const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
+  const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
 
-  // --- AUTH SCREEN ---
   if (!isLoggedIn) {
     return (
       <div className="auth-container">
@@ -113,103 +116,100 @@ function App() {
     );
   }
 
-  // --- DASHBOARD SCREEN ---
   return (
-  <div className="dashboard-container">
-    <header>
-      <div style={{ fontSize: '24px', fontWeight: '900', color: '#1e293b' }}>
-        <span style={{ color: '#6366f1' }}>My</span>FinanceTracker
-      </div>
-      <button onClick={() => setIsLoggedIn(false)} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', fontWeight: '600' }}>
-        Sign Out
-      </button>
-    </header>
-
-    {/* Hero Section */}
-    <div className="balance-card">
-      <p style={{ margin: 0, opacity: 0.8, fontWeight: '700', fontSize: '14px' }}>AVAILABLE BALANCE</p>
-      <h2>₹{total.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</h2>
-    </div>
-
-    <div className="main-grid">
-      {/* Sidebar: Controls and Chart */}
-      <div className="sidebar">
-        <section className="glass-card" style={{ marginBottom: '2rem' }}>
-          <h3 style={{ marginTop: 0 }}>Add Transaction</h3>
-          <form onSubmit={handleSubmit}>
-            <input 
-  type="number" 
-  value={formData.amount} 
-  placeholder="Amount (₹)" 
-  onChange={e => setFormData({ ...formData, amount: e.target.value })} 
-  required 
-/>
-            <select 
-  value={formData.category} 
-  onChange={e => setFormData({ ...formData, category: e.target.value })}
->
-  <option value="Food">🍔 Food</option>
-  <option value="Rent">🏠 Rent</option>
-  <option value="Travel">✈️ Travel</option>
-  <option value="Bills">🧾 Bills</option>
-  <option value="Shopping">🛍️ Shopping</option>
-  <option value="Salary">💰 Salary</option>
-</select>
-            <select value={formData.type} onChange={e => setFormData({ ...formData, type: e.target.value })}>
-              <option value="expense">Expense</option>
-              <option value="income">Income</option>
-            </select>
-            <button type="submit" className="btn-main">Save Transaction</button>
-          </form>
-        </section>
-
-        {chartData.length > 0 && (
-          <section className="glass-card" style={{ height: '300px' }}>
-            <h3 style={{ marginTop: 0, textAlign: 'center', fontSize: '16px' }}>Spending Analysis</h3>
-            <ResponsiveContainer width="100%" height="80%">
-              <PieChart>
-                <Pie data={chartData} dataKey="value" cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5}>
-                  {chartData.map((entry, index) => <Cell key={index} fill={COLORS[index % COLORS.length]} />)}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </section>
-        )}
-      </div>
-
-      {/* Main Content: History */}
-      <section className="glass-card">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-          <h3 style={{ margin: 0 }}>Recent Activity</h3>
-          <CSVLink data={transactions} filename={"finance_report.csv"} className="export-btn">Download CSV</CSVLink>
+    <div className="dashboard-container">
+      <header>
+        <div style={{ fontSize: '24px', fontWeight: '900', color: '#1e293b' }}>
+          <span style={{ color: '#6366f1' }}>My</span>FinanceTracker
         </div>
-        
-        <div style={{ maxHeight: '600px', overflowY: 'auto' }}>
-          {transactions.length === 0 ? (
-            <p style={{ color: '#94a3b8', textAlign: 'center', padding: '40px' }}>No transactions recorded yet.</p>
-          ) : (
-            transactions.map(t => (
-              <div key={t.id} className="transaction-row">
-                <div>
-                  <div style={{ fontWeight: '700', fontSize: '16px' }}>{t.category}</div>
-                  <div style={{ fontSize: '12px', color: '#94a3b8' }}>{new Date(t.date).toLocaleDateString()}</div>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                  <span className={t.type}>
-  {t.type === 'expense' ? '-' : '+'}₹{Number(t.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-</span>
-                  <button onClick={() => deleteItem(t.id)} style={{ background: 'none', border: 'none', color: '#cbd5e1', cursor: 'pointer', fontSize: '20px' }}>×</button>
-                </div>
-              </div>
-            ))
+        <button onClick={handleLogout} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', fontWeight: '600' }}>
+          Sign Out
+        </button>
+      </header>
+
+      <div className="balance-card">
+        <p style={{ margin: 0, opacity: 0.8, fontWeight: '700', fontSize: '14px' }}>AVAILABLE BALANCE</p>
+        <h2>₹{total.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</h2>
+      </div>
+
+      <div className="main-grid">
+        <div className="sidebar">
+          <section className="glass-card" style={{ marginBottom: '2rem' }}>
+            <h3 style={{ marginTop: 0 }}>Add Transaction</h3>
+            <form onSubmit={handleSubmit}>
+              <input 
+                type="number" 
+                value={formData.amount} 
+                placeholder="Amount (₹)" 
+                onChange={e => setFormData({ ...formData, amount: e.target.value })} 
+                required 
+              />
+              <select 
+                value={formData.category} 
+                onChange={e => setFormData({ ...formData, category: e.target.value })}
+              >
+                <option value="Food">🍔 Food</option>
+                <option value="Rent">🏠 Rent</option>
+                <option value="Travel">✈️ Travel</option>
+                <option value="Bills">🧾 Bills</option>
+                <option value="Shopping">🛍️ Shopping</option>
+                <option value="Salary">💰 Salary</option>
+              </select>
+              <select value={formData.type} onChange={e => setFormData({ ...formData, type: e.target.value })}>
+                <option value="expense">Expense</option>
+                <option value="income">Income</option>
+              </select>
+              <button type="submit" className="btn-main">Save Transaction</button>
+            </form>
+          </section>
+
+          {chartData.length > 0 && (
+            <section className="glass-card" style={{ height: '300px' }}>
+              <h3 style={{ marginTop: 0, textAlign: 'center', fontSize: '16px' }}>Spending Analysis</h3>
+              <ResponsiveContainer width="100%" height="80%">
+                <PieChart>
+                  <Pie data={chartData} dataKey="value" cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5}>
+                    {chartData.map((entry, index) => <Cell key={index} fill={COLORS[index % COLORS.length]} />)}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            </section>
           )}
         </div>
-      </section>
-    </div>
-  </div>
-);
-}
 
+        <section className="glass-card">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+            <h3 style={{ margin: 0 }}>Recent Activity</h3>
+            <CSVLink data={transactions} filename={"finance_report.csv"} className="export-btn">Download CSV</CSVLink>
+          </div>
+          
+          <div style={{ maxHeight: '600px', overflowY: 'auto' }}>
+            {transactions.length === 0 ? (
+              <p style={{ color: '#94a3b8', textAlign: 'center', padding: '40px' }}>No transactions recorded yet.</p>
+            ) : (
+              transactions.map(t => (
+                <div key={t.id} className="transaction-row">
+                  <div>
+                    <div style={{ fontWeight: '700', fontSize: '16px' }}>{t.category}</div>
+                    <div style={{ fontSize: '12px', color: '#94a3b8' }}>
+                      {new Date(t.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                    <span className={t.type}>
+                      {t.type === 'expense' ? '-' : '+'}₹{Number(t.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                    </span>
+                    <button onClick={() => deleteItem(t.id)} style={{ background: 'none', border: 'none', color: '#cbd5e1', cursor: 'pointer', fontSize: '20px' }}>×</button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </section>
+      </div>
+    </div>
+  );
+}
 
 export default App;
