@@ -1,12 +1,36 @@
 const express = require('express');
 const cors = require('cors');
 const db = require('./db');
+// Auto-create tables if they don't exist in Aiven
+const initDB = async () => {
+  try {
+    await db.execute(`
+      CREATE TABLE IF NOT EXISTS users (
+        id INT AUTO_INCREMENT PRIMARY KEY, 
+        email VARCHAR(255) NOT NULL UNIQUE, 
+        password VARCHAR(255) NOT NULL
+      )`);
+    await db.execute(`
+      CREATE TABLE IF NOT EXISTS transactions (
+        id INT AUTO_INCREMENT PRIMARY KEY, 
+        type ENUM('income', 'expense') NOT NULL, 
+        category VARCHAR(100) NOT NULL, 
+        amount DECIMAL(10, 2) NOT NULL, 
+        date DATE NOT NULL
+      )`);
+    console.log("✅ Database Tables Verified in Aiven");
+  } catch (err) {
+    console.error("❌ Database Init Error:", err);
+  }
+};
+initDB();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 const app = express();
 const JWT_SECRET = "finance_secret_key_2026"; 
+
 
 app.use(cors({
   origin: ["https://finance-tracker-bice-eta.vercel.app"],
