@@ -20,7 +20,7 @@ function App() {
   // Fetch transactions from backend
   const fetchTransactions = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/transactions');
+      const res = await axios.get('https://finance-backend-ym2h.onrender.com/');
       setTransactions(res.data);
     } catch (err) {
       console.error("Error fetching data:", err);
