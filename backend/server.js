@@ -8,7 +8,11 @@ require('dotenv').config();
 const app = express();
 const JWT_SECRET = "finance_secret_key_2026"; 
 
-app.use(cors());
+app.use(cors({
+    origin: '*', 
+    methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 
 // --- AUTH ROUTES ---
