@@ -1,0 +1,171 @@
+:root {
+  --indigo: #6366f1;
+  --indigo-dark: #4338ca;
+  --slate-50: #f8fafc;
+  --slate-200: #e2e8f0;
+  --slate-800: #1e293b;
+  --emerald: #10b981;
+  --rose: #f43f5e;
+}
+
+body {
+  background-color: var(--slate-50);
+  margin: 0;
+  font-family: 'Inter', system-ui, sans-serif;
+  color: var(--slate-800);
+}
+
+/* Auth Page Centering */
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #e0e7ff 0%, #f1f5f9 100%);
+}
+
+.auth-card {
+  background: white;
+  padding: 3rem;
+  border-radius: 2rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+/* Dashboard Layout */
+.dashboard-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2.5rem;
+}
+
+.balance-card {
+  background: linear-gradient(135deg, var(--indigo) 0%, var(--indigo-dark) 100%);
+  color: white;
+  padding: 3.5rem;
+  border-radius: 2.5rem;
+  text-align: center;
+  margin-bottom: 3rem;
+  box-shadow: 0 20px 25px -5px rgba(99, 102, 241, 0.3);
+}
+
+.balance-card h2 {
+  font-size: 4rem;
+  margin: 0.5rem 0;
+  font-weight: 800;
+  letter-spacing: -2px;
+}
+
+/* Grid System */
+.main-grid {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 2.5rem;
+}
+
+.glass-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 2rem;
+  border: 1px solid var(--slate-200);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+}
+
+/* Form Elements */
+input, select {
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 1rem;
+  border-radius: 12px;
+  border: 2px solid var(--slate-200);
+  font-size: 1rem;
+  box-sizing: border-box;
+  transition: all 0.2s;
+}
+
+input:focus, select:focus {
+  border-color: var(--indigo);
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+}
+
+.btn-main {
+  width: 100%;
+  padding: 16px;
+  background-color: var(--indigo);
+  color: white;
+  border: none;
+  border-radius: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-main:hover {
+  background-color: var(--indigo-dark);
+  transform: translateY(-2px);
+}
+
+/* List UI */
+.transaction-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 1.25rem;
+  border-radius: 1rem;
+  margin-bottom: 0.5rem;
+  transition: background 0.2s;
+}
+
+.transaction-row:hover {
+  background-color: var(--slate-50);
+}
+
+.expense { 
+  color: #e11d48; /* Deeper Red */
+  font-weight: 800; 
+  background: #fff1f2; /* Light red tint background */
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+.income { 
+  color: #059669; /* Deeper Emerald */
+  font-weight: 800; 
+  background: #ecfdf5; /* Light green tint background */
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.export-btn {
+  text-decoration: none;
+  color: var(--indigo);
+  font-weight: 700;
+  font-size: 0.85rem;
+  border: 2px solid var(--indigo);
+  padding: 6px 14px;
+  border-radius: 10px;
+  transition: all 0.2s;
+}
+
+.export-btn:hover {
+  background-color: var(--indigo);
+  color: white;
+}
+select option {
+  padding: 10px;
+  background: white;
+  color: var(--slate-800);
+}
+
+/* Make the dropdown look more interactive on click */
+select:active {
+  transform: scale(0.98);
+}
