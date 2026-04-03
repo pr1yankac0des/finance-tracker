@@ -9,9 +9,8 @@ const app = express();
 const JWT_SECRET = "finance_secret_key_2026"; 
 
 app.use(cors({
-    origin: '*', 
-    methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+  origin: ["https://finance-tracker-bice-eta.vercel.app"],
+  credentials: true
 }));
 app.use(express.json());
 
