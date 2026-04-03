@@ -76,4 +76,10 @@ app.post('/api/transactions/delete', async (req, res) => {
     }
 });
 
-app.listen(5000, () => console.log("🚀 Server running on http://localhost:5000"));
+// 1. Define a dynamic port using environment variables
+const PORT = process.env.PORT || 5000;
+
+// 2. Update the listener to use the dynamic PORT and '0.0.0.0' for external access
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+});
